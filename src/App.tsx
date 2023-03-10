@@ -1,72 +1,85 @@
-import React, { useState } from "react";
-import { X, Check } from "@phosphor-icons/react";
+import React, { ChangeEvent, useState } from "react";
+import TodoTask from "./components/TodoTask";
+import { Task } from "./interfaces";
 
 import "./index.css";
 
 function App() {
-  type Task = {
-    id: number;
-    todo: string;
-    isDone: boolean;
-  };
   const [task, setTask] = useState<string>("");
   const [taskArr, setTaskArr] = useState<Task[]>([]);
-  const addTask = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [doneArr, setDoneArr] = useState<Task[]>([]);
+  const addTask = (): void => {
     setTaskArr([...taskArr, { id: Date.now(), todo: task, isDone: false }]);
     setTask("");
   };
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setTask(e.target.value);
+  };
+
+  const completeTask = (taskID: number): void => {
+    setTaskArr(
+      taskArr.filter((task) => {
+        return task.id !== taskID;
+      })
+    );
+  };
+
+  const markAsDone = (task: Task): void => {
+    setTaskArr(
+      taskArr.filter((t) => {
+        if (task.id === t.id) {
+          task.isDone = true;
+          setDoneArr([...doneArr, t]);
+          //wepchnij do arraya z done
+        } else return task;
+      })
+    );
+  };
   return (
     <div className="flex flex-col gap-10 h-screen justify-center mx-auto text-center">
       <h1 className="text-white font-bold text-4xl mt-10">Task list</h1>
       <div>
-        <form onSubmit={addTask}>
-          <input
-            type="text"
-            onChange={(e) => {
-              setTask(e.target.value);
-            }}
-            className="px-4 py-2 mx-2"
-            placeholder="Task..."
-          />
-          <button
-            onClick={(e) => {
-              addTask(e);
-            }}
-            className="bg-gray-500 py-2 px-4 mx-2 hover:bg-gray-600 active:bg-gray-800 transition-all text-white font-bold"
-          >
-            Add
-          </button>
-        </form>
+        <input
+          value={task}
+          type="text"
+          onChange={handleChange}
+          className="px-4 py-2 mx-2"
+          placeholder="Task..."
+        />
+        <button
+          onClick={addTask}
+          className="bg-gray-500 py-2 px-4 mx-2 hover:bg-gray-600 active:bg-gray-800 transition-all text-white font-bold"
+        >
+          Add
+        </button>
       </div>
       <div className="flex flex-1 mx-20 mb-10">
         <div className="flex-1 bg-red-300 m-5 p-5">
           <h2 className="font-bold text-gray-700 text-2xl mb-5">To do</h2>
-          <ul className="flex-col flex gap-5">
-            {taskArr.map((item, idx) => (
-              <li
+          <div className="flex-col flex gap-5">
+            {taskArr.map((item: Task, idx: number) => (
+              <TodoTask
+                task={item}
                 key={idx}
-                className="bg-white text-black w-full text-left h-14 px-5 justify-center flex flex-col"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col justify-center">{item.todo}</div>
-                  <div className="flex gap-5 items-center">
-                    <button className="rounded-full bg-red-300 hover:bg-red-400 active:bg-red-500 text-white p-2">
-                      <X weight="bold" size={20} />
-                    </button>
-                    <button className="hover:bg-gray-100 rounded-full p-1 active:bg-gray-200">
-                      <Check size={20} weight="bold" className="text-green-600" />
-                    </button>
-                  </div>
-                </div>
-              </li>
+                completeTask={completeTask}
+                markAsDone={markAsDone}
+              />
             ))}
-          </ul>
+          </div>
         </div>
         <div className="flex-1 bg-green-300 m-5 p-5">
           <h2 className="font-bold text-gray-700 text-2xl mb-5">Done</h2>
-          <ul className="flex-col flex gap-5"></ul>
+          <div className="flex-col flex gap-5">
+            {doneArr.map((item: Task, idx: number) => (
+              <TodoTask
+                task={item}
+                key={idx}
+                completeTask={completeTask}
+                markAsDone={markAsDone}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
