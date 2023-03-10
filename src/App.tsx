@@ -17,9 +17,17 @@ function App() {
     setTask(e.target.value);
   };
 
-  const completeTask = (taskID: number): void => {
+  const deleteTask = (taskID: number): void => {
     setTaskArr(
       taskArr.filter((task) => {
+        return task.id !== taskID;
+      })
+    );
+  };
+
+  const deleteDoneTask = (taskID: number): void => {
+    setDoneArr(
+      doneArr.filter((task) => {
         return task.id !== taskID;
       })
     );
@@ -31,7 +39,6 @@ function App() {
         if (task.id === t.id) {
           task.isDone = true;
           setDoneArr([...doneArr, t]);
-          //wepchnij do arraya z done
         } else return task;
       })
     );
@@ -62,7 +69,7 @@ function App() {
               <TodoTask
                 task={item}
                 key={idx}
-                completeTask={completeTask}
+                deleteTask={deleteTask}
                 markAsDone={markAsDone}
               />
             ))}
@@ -75,7 +82,7 @@ function App() {
               <TodoTask
                 task={item}
                 key={idx}
-                completeTask={completeTask}
+                deleteTask={deleteDoneTask}
                 markAsDone={markAsDone}
               />
             ))}
